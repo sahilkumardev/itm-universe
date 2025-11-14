@@ -1,7 +1,11 @@
-import * as React from "react";
+import React from "react";
 
-function MaxWidthWrapper({ children }: { children: React.ReactNode }) {
-  return <main className="max-w-3xl mx-auto relative">{children}</main>;
-}
+const MaxWidthWrapper = ({ children }: { children: React.ReactNode }) => {
+  return (
+  <main className="max-w-screen-2xl mx-auto relative">
+    {children}
+  </main>
+  );
+};
 
 export { MaxWidthWrapper };

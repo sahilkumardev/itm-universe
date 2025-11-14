@@ -1,80 +1,93 @@
 "use client";
 
-import * as React from "react";
-import { usePathname } from "next/navigation";
+import {
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
-import { siteConfig } from "@/lib/config";
-import { cn } from "@/lib/utils";
-import { Separator } from "@/components/ui/separator";
-import { Icons } from "@/components/icons";
-import ModeToggler from "@/components/mode-toggler";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { MenuIcon } from "lucide-react";
+import { siteConfig } from "@/lib/config";
+import { BsDiscord } from "react-icons/bs";
+import { Button } from "@/components/ui/button";
+import React, { ComponentProps } from "react";
+import ModeToggler from "@/components/mode-toggler";
 
 export default function SiteHeader() {
-  const [scrolled, setScrolled] = React.useState(false);
-
-  React.useEffect(() => {
-    const handleScroll = () => {
-      const offset = window.scrollY;
-      if (offset > 50) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [scrolled]);
-
   return (
-    <header className="sticky w-full z-50 left-0 right-0 top-5">
-      <div
-        className={cn(
-          "bg-foreground/3 backdrop-blur-lg z-50 rounded-full border",
-          "transition-all duration-500 ease-in-out",
-          "flex items-center justify-between px-4 sm:px-8 py-2 md:py-3 mx-4 sm:mx-auto",
-          scrolled ? "max-w-2xl" : "max-w-3xl"
-        )}
-      >
-        <Link href="/" className="hover:cursor-default select-none">
-          <Icons.logo className="size-7.5" />
-          <span className="sr-only">{siteConfig.name}</span>
-        </Link>
+    <header className="sticky w-full right-0 z-50 transition-all duration-100 ease-in flex items-center shadow backdrop-blur-md top-0 border-b h-14 bg-surface/70 border-border/70">
+      <div className="flex items-center justify-between w-full px-10 md:px-16">
+        <div className="flex items-center gap-6">
+          <Link href="/" className="hover:cursor-default select-none">
+            Logo
+          </Link>
+          <NavLinks className="hidden md:flex items-center gap-6" />
+        </div>
 
-        <MainNav items={siteConfig.navItems} />
-
-        <div className="">
-          <Separator orientation="vertical" />
+        <div className="flex items-center md:gap-1 h-6">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="group/toggle extend-touch-target size-8"
+          >
+            <BsDiscord />
+          </Button>
           <ModeToggler />
+
+          <MobileNav className="md:hidden ml-2" />
         </div>
       </div>
     </header>
   );
 }
 
-function MainNav({
-  items,
-  className,
-  ...props
-}: React.ComponentProps<"nav"> & {
-  items: { href: string; label: string }[];
-}) {
-  const pathname = usePathname();
+function MobileNav({ className }: ComponentProps<"div">) {
+  const [open, setOpen] = React.useState(false);
 
   return (
-    <nav className={cn("items-center flex gap-3", className)} {...props}>
-      {items.map((item) => (
-        <Link
-          key={item.label}
-          href={item.href}
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button
+          variant="ghost"
           className={cn(
-            "hover:cursor-default hover:text-app text-sm",
-            pathname === item.href && "text-app-secondary"
+            "extend-touch-target h-8 touch-manipulation items-center justify-start gap-2.5 p-0 hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 active:bg-transparent dark:hover:bg-transparent",
+            className
           )}
         >
-          {item.label}
-        </Link>
-      ))}
-    </nav>
+          <MenuIcon />
+          <span className="sr-only">Toggle Menu</span>
+        </Button>
+      </SheetTrigger>
+
+      <SheetContent side="left" className="w-full p-0 backdrop-blur-xl">
+        <SheetTitle className="pt-4 pl-4">Logo</SheetTitle>
+
+        <NavLinks className="mt-3" />
+      </SheetContent>
+    </Sheet>
   );
 }
+
+const NavLinks = ({
+  className,
+  onClick,
+}: {
+  className?: string;
+  onClick?: () => void;
+}) => (
+  <nav className={className}>
+    {siteConfig.navItems.map(({ href, label }) => (
+      <Link
+        key={href}
+        href={href}
+        onClick={onClick}
+        className="flex items-center gap-3 px-4 py-2 text-sm text-foreground/90 hover:text-app transition-colors md:px-0 md:py-0"
+      >
+        {label}
+      </Link>
+    ))}
+  </nav>
+);
